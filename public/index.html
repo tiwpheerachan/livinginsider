@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <meta name="description" content="LivingInsider Scraper UI — ค้นหา/ฟิลเตอร์/สแครป และ Export เป็น Excel/CSV" />
+  <title>LivingInsider Scraper — SunEtLune tools</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+
+<body>
+  <noscript>
+    <div style="padding:12px 16px; background:#fff3cd; border:1px solid #ffe69c; border-radius:12px; margin:12px; font-family:Inter,system-ui">
+      ต้องเปิดใช้งาน JavaScript เพื่อใช้งานหน้านี้
+    </div>
+  </noscript>
+
+  <!-- Topbar -->
+  <header class="topbar" role="banner">
+    <div class="brand" aria-label="Brand">
+      <div class="logo" aria-hidden="true">LI</div>
+      <div class="brand-text">
+        <div class="title">LivingInsider Scraper</div>
+        <div class="subtitle">SunEtLune tools</div>
+      </div>
+    </div>
+
+    <div class="top-actions" role="group" aria-label="Quick actions">
+      <button id="btnSample" class="btn ghost" type="button">Sample 10</button>
+      <button id="btnRun" class="btn primary" type="button">Run Scrape</button>
+      <button id="btnStop" class="btn ghost" type="button" aria-disabled="true" disabled>Stop</button>
+    </div>
+  </header>
+
+  <main class="wrap" role="main">
+    <!-- Controls -->
+    <section class="glass" aria-label="Scrape controls">
+      <form id="scrapeForm" autocomplete="off">
+        <div class="grid grid-basic">
+          <!-- Start URL -->
+          <div class="field span3">
+            <label for="startUrl">Start URL</label>
+            <input
+              id="startUrl"
+              name="startUrl"
+              type="url"
+              inputmode="url"
+              spellcheck="false"
+              placeholder="วางลิงก์หน้า search ของ LivingInsider ที่นี่"
+              value="https://www.livinginsider.com/searchword/all/Buysell/1/%E0%B8%A3%E0%B8%A7%E0%B8%A1%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%81%E0%B8%A8%E0%B8%82%E0%B8%B2%E0%B8%A2-%E0%B9%80%E0%B8%8A%E0%B9%88%E0%B8%B2-%E0%B8%84%E0%B8%AD%E0%B8%99%E0%B9%82%E0%B8%94-%E0%B8%9A%E0%B9%89%E0%B8%B2%E0%B8%99-%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%94%E0%B8%B4%E0%B8%99.html"
+              required
+            />
+            <div class="help">Tip: ใช้ลิงก์จากหน้า Searchword / Filter แล้ววางได้เลย</div>
+
+            <div class="preset-row">
+              <div class="help">Preset:</div>
+              <button id="btnPresetDefault" class="btn ghost btn-sm" type="button">ใช้ลิงก์ตัวอย่าง</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="dealType">Deal Type</label>
+            <select id="dealType" name="dealType">
+              <option value="">ทั้งหมด</option>
+              <option value="ขาย">ขาย</option>
+              <option value="ให้เช่า">ให้เช่า</option>
+              <option value="เช่า">เช่า</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="category">Category</label>
+            <select id="category" name="category">
+              <option value="">ทั้งหมด</option>
+              <option value="คอนโด">คอนโด</option>
+              <option value="บ้าน">บ้าน</option>
+              <option value="ทาวน์โฮม">ทาวน์โฮม</option>
+              <option value="ที่ดิน">ที่ดิน</option>
+              <option value="อพาร์ทเม้นต์">อพาร์ทเม้นต์</option>
+              <option value="สำนักงาน">สำนักงาน</option>
+              <option value="โฮมออฟฟิศ">โฮมออฟฟิศ</option>
+              <option value="โรงงาน">โรงงาน</option>
+              <option value="โกดัง">โกดัง</option>
+              <option value="ร้านค้า">ร้านค้า</option>
+              <option value="โชว์รูม">โชว์รูม</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="keyword">Keyword</label>
+            <input id="keyword" name="keyword" type="text" placeholder="เช่น บางนา / ติดรถไฟฟ้า / เซ็นทรัล" />
+            <div class="help">ใส่คำที่อยากให้กรอง (จะใช้กรองจากข้อมูลที่ดึงมา)</div>
+          </div>
+
+          <div class="field">
+            <label for="priceMin">Price Min</label>
+            <input id="priceMin" name="priceMin" type="number" inputmode="numeric" placeholder="บาท" min="0" step="1" />
+          </div>
+
+          <div class="field">
+            <label for="priceMax">Price Max</label>
+            <input id="priceMax" name="priceMax" type="number" inputmode="numeric" placeholder="บาท" min="0" step="1" />
+          </div>
+        </div>
+
+        <details class="advanced" open>
+          <summary>ตั้งค่าขั้นสูง (Advanced)</summary>
+
+          <div class="grid grid-advanced">
+            <div class="field">
+              <label for="maxPages">Max Pages</label>
+              <input id="maxPages" name="maxPages" type="number" min="1" value="3" />
+              <div class="help">จำนวนหน้าจากหน้า List ที่จะไล่เก็บลิงก์</div>
+            </div>
+
+            <div class="field">
+              <label for="maxResults">Max Results</label>
+              <input id="maxResults" name="maxResults" type="number" min="1" value="50" />
+              <div class="help">จำนวนประกาศสูงสุดที่จะเข้าไปอ่านรายละเอียด</div>
+            </div>
+
+            <div class="field">
+              <label for="sampleEvery">Sample Every</label>
+              <input id="sampleEvery" name="sampleEvery" type="number" min="1" value="1" />
+              <div class="help">ใส่ 2 = เก็บทุก 2 ลิงก์ (ลดเวลา/ลดโหลด)</div>
+            </div>
+
+            <div class="field">
+              <label for="preferFastMode">Performance</label>
+              <select id="preferFastMode" name="preferFastMode">
+                <option value="auto">Auto (แนะนำ)</option>
+                <option value="fast">Fast (บล็อครูป/สื่อมากขึ้น)</option>
+                <option value="full">Full (พยายามเก็บข้อมูลครบสุด)</option>
+              </select>
+              <div class="help">โหมด Full อาจช้ากว่า แต่มีโอกาสได้ข้อมูลมากขึ้น</div>
+            </div>
+
+            <div class="actions span4" role="group" aria-label="Export actions">
+              <button id="btnExportCsv" class="btn" type="button" disabled aria-disabled="true">Export CSV</button>
+              <button id="btnExportXlsx" class="btn" type="button" disabled aria-disabled="true">Export XLSX</button>
+              <button id="btnCopySheets" class="btn" type="button" disabled aria-disabled="true">Copy IMPORTDATA</button>
+
+              <div class="spacer" aria-hidden="true"></div>
+
+              <button id="btnClear" class="btn ghost" type="button">ล้างข้อมูล</button>
+            </div>
+          </div>
+        </details>
+
+        <div class="statusbar">
+          <div class="status-left">
+            <div class="status-line">
+              <span class="label">กำลังทำงาน:</span>
+              <span id="statusText" class="value">พร้อมใช้งาน</span>
+            </div>
+            <div class="help" id="statusHelp">กด Sample 10 หรือ Run Scrape เพื่อเริ่ม</div>
+
+            <div id="statusError" class="help" style="display:none; color:#b42318;" role="status" aria-live="polite"></div>
+          </div>
+
+          <div class="status-right">
+            <div class="pct" aria-label="Progress">
+              <div class="pct-num" id="progressText">0%</div>
+              <div class="pct-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div id="progressBar" class="pct-fill"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="meta" class="meta" role="status" aria-live="polite" aria-atomic="true"></div>
+      </form>
+    </section>
+
+    <!-- Results -->
+    <section class="glass" aria-label="Results table">
+      <div class="table-actions">
+        <div class="left">
+          <div class="hint" id="resultHint">No results</div>
+        </div>
+        <div class="right hint">Tip: ถ้าดึงเยอะให้เพิ่ม sampleEvery, ลด maxPages</div>
+      </div>
+
+      <div class="scroll" role="region" aria-label="Scrape results table">
+        <table>
+          <thead id="thead"></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== 📊 AI ANALYTICS DASHBOARD ===== -->
+    <section id="dashboardSection" class="glass dashboard-section" style="display:none;">
+      <div class="dashboard-header">
+        <div class="dashboard-title">
+          <svg class="dashboard-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
+          </svg>
+          <h2>AI Analytics Dashboard</h2>
+        </div>
+        <button id="btnToggleDashboard" class="btn ghost btn-sm" type="button">
+          <span id="dashboardToggleText">ซ่อน Dashboard</span>
+        </button>
+      </div>
+
+      <div id="dashboardContent" class="dashboard-content">
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background: linear-gradient(135deg, #3b82f6, #22d3ee);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/>
+                <rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
+              </svg>
+            </div>
+            <div class="kpi-content">
+              <div class="kpi-label">Total Listings</div>
+              <div class="kpi-value" id="kpiTotalListings">0</div>
+              <div class="kpi-help">ประกาศทั้งหมด</div>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background: linear-gradient(135deg, #22c55e, #10b981);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </div>
+            <div class="kpi-content">
+              <div class="kpi-label">Avg Quality</div>
+              <div class="kpi-value" id="kpiAvgQuality">0%</div>
+              <div class="kpi-help">คะแนนเฉลี่ย</div>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background: linear-gradient(135deg, #f59e0b, #f97316);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+            <div class="kpi-content">
+              <div class="kpi-label">Price Range</div>
+              <div class="kpi-value" id="kpiPriceRange">-</div>
+              <div class="kpi-help">ช่วงราคา</div>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background: linear-gradient(135deg, #8b5cf6, #a855f7);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                <path d="M2 12h20"/>
+              </svg>
+            </div>
+            <div class="kpi-content">
+              <div class="kpi-label">Near BTS</div>
+              <div class="kpi-value" id="kpiNearBTS">0</div>
+              <div class="kpi-help">ห่างไม่เกิน 500m</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Insights -->
+        <div class="insight-card">
+          <div class="insight-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>
+            </svg>
+            <h3>AI Insights & Recommendations</h3>
+          </div>
+          <div id="aiInsightsList" class="insight-list"></div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+
+          <!-- ✅ HERO CHART (เด่นสุด) -->
+          <div class="chart-card span-2 chart-hero">
+            <div class="chart-header">
+              <h3>Overall Best Ranking (Top 10)</h3>
+              <div class="chart-help">อันดับคะแนนภาพรวมที่ดีที่สุด (รวมคุณภาพ + ทำเล + ความคุ้มค่า)</div>
+            </div>
+            <div class="chart-canvas-wrap">
+              <canvas id="chartOverallRanking"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>Price Distribution</h3>
+              <div class="chart-help">การกระจายตัวของราคา</div>
+            </div>
+            <canvas id="chartPriceDistribution"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>Quality Score Distribution</h3>
+              <div class="chart-help">การกระจายของคะแนนคุณภาพ</div>
+            </div>
+            <canvas id="chartQualityScore"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>Category Breakdown</h3>
+              <div class="chart-help">แบ่งตามประเภท</div>
+            </div>
+            <canvas id="chartCategoryBreakdown"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>Facility Analysis</h3>
+              <div class="chart-help">สิ่งอำนวยความสะดวก</div>
+            </div>
+            <canvas id="chartFacilities"></canvas>
+          </div>
+        </div>
+
+        <!-- Top Recommendations -->
+        <div class="top-listings">
+          <h3>🏆 Top Recommendations</h3>
+          <div class="top-grid">
+            <div class="top-card">
+              <div class="top-header">
+                <div class="top-badge" style="background: linear-gradient(135deg, #22c55e, #10b981);">Best Value</div>
+                <div class="top-score" id="topValue">-</div>
+              </div>
+              <div class="top-title" id="topValueTitle">-</div>
+              <div class="top-details">
+                <div class="top-detail"><span class="label">Price:</span><span class="value" id="topValuePrice">-</span></div>
+                <div class="top-detail"><span class="label">BTS:</span><span class="value" id="topValueBTS">-</span></div>
+              </div>
+            </div>
+
+            <div class="top-card">
+              <div class="top-header">
+                <div class="top-badge" style="background: linear-gradient(135deg, #3b82f6, #22d3ee);">Best Quality</div>
+                <div class="top-score" id="topQuality">-</div>
+              </div>
+              <div class="top-title" id="topQualityTitle">-</div>
+              <div class="top-details">
+                <div class="top-detail"><span class="label">Quality:</span><span class="value" id="topQualityScore">-</span></div>
+                <div class="top-detail"><span class="label">Facilities:</span><span class="value" id="topQualityFacilities">-</span></div>
+              </div>
+            </div>
+
+            <div class="top-card">
+              <div class="top-header">
+                <div class="top-badge" style="background: linear-gradient(135deg, #f59e0b, #f97316);">Best Investment</div>
+                <div class="top-score" id="topInvestment">-</div>
+              </div>
+              <div class="top-title" id="topInvestmentTitle">-</div>
+              <div class="top-details">
+                <div class="top-detail"><span class="label">Score:</span><span class="value" id="topInvestmentScore">-</span></div>
+                <div class="top-detail"><span class="label">Location:</span><span class="value" id="topInvestmentLocation">-</span></div>
+              </div>
+            </div>
+
+            <div class="top-card">
+              <div class="top-header">
+                <div class="top-badge" style="background: linear-gradient(135deg, #8b5cf6, #a855f7);">Best Location</div>
+                <div class="top-score" id="topLocation">-</div>
+              </div>
+              <div class="top-title" id="topLocationTitle">-</div>
+              <div class="top-details">
+                <div class="top-detail"><span class="label">Walkability:</span><span class="value" id="topLocationWalk">-</span></div>
+                <div class="top-detail"><span class="label">BTS:</span><span class="value" id="topLocationBTS">-</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BTS Hotspots -->
+        <div class="hotspots-section">
+          <h3>📍 BTS Station Hotspots</h3>
+          <div id="btsHotspotsList" class="hotspots-list"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <footer class="foot" role="contentinfo">
+      <div>Tip: ถ้าดึงเยอะให้เพิ่ม sampleEvery, ลด maxPages, หรือรันบนเซิร์ฟเวอร์ที่แรงขึ้น</div>
+      <div class="help">Shortcut: กด <b>Enter</b> เพื่อ Sample, กด <b>Ctrl + Enter</b> เพื่อ Run</div>
+    </footer>
+  </main>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="/app.js" defer></script>
+</body>
+</html>
