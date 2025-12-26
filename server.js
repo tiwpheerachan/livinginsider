@@ -16,8 +16,9 @@ import scrapeListings from "./src/scraper.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// IMPORTANT: allow override via env PORT
-const PORT = Number(process.env.PORT || 3000);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log("Listening on", PORT));
+
 
 /** =========================
  *  Crash guards
